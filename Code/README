@@ -1,0 +1,17 @@
+Data prep scripts:
+
+montlyNina34.R
+seasonalNina34.R
+seasonalCRU.R
+
+
+Single Gridbox analysis:
+
+singleGridbox.R
+singleGridboxCombine.R
+
+
+Full field analysis:
+
+summarizeDataQuality.R
+findCutoffYear.R

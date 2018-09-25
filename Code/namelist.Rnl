@@ -15,7 +15,7 @@ source('Code/Functions.R')
 ddir <- '/Users/lenssen/Documents/ensoData'
 wddir <- '/Users/lenssen/Documents/cruInvestigationData'
 
-plotdir <- '/Users/lenssen/Dropbox/DEES/LisaWork/Meetings/September'
+plotdir <- '/Users/lenssen/Dropbox/DEES/LisaWork/Meetings/CommitteeMeeting'
 
 
 # file names of raw data
