@@ -28,7 +28,10 @@ counts <- ncvar_get(handle, 'stn', start=c(1,1,timeInds[1]),
 								count=c(-1,-1,length(timeInds)) )
 nc_close(handle)
 
-# get the ppt series arranged all pretty
+# deal with NAs
+counts[counts==-999] <- NA
+
+# Take seasonal statistics
 pptSeasonal <- seasonalField12(ppt,tYear,sum)
 countsSeasonal <- seasonalField12(counts,tYear,min)
 
