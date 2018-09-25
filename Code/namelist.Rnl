@@ -1,0 +1,43 @@
+##########
+# packages
+##########
+library(fields)
+library(ncdf4)
+library(RColorBrewer)
+
+# user functions
+source('Code/Functions.R')
+
+##################################################
+# primary parameters (CHECK ALL OF THEM EACH RUN!)
+##################################################
+
+ddir <- '/Users/lenssen/Documents/ensoData'
+wddir <- '/Users/lenssen/Documents/cruInvestigationData'
+
+plotdir <- '/Users/lenssen/Dropbox/DEES/LisaWork/Meetings/September'
+
+
+# file names of raw data
+pptFile <- 'cru_ts4.01.1901.2016.pre.dat.nc'
+ensoFile <- 'nina34ESD.txt'
+
+
+# time parameters
+startYear <- 1950
+endYear   <- 2016
+
+# single location (if used)
+xInd <- 713
+yInd <- 176
+
+######################
+# secondary parameters
+######################
+
+# time objects to overwrite the full time objs in /Raw/ workspace
+nYear <- endYear-startYear+1
+nMonth <- nYear * 12
+
+tMonth <- seq(startYear,endYear+1,length=nMonth+1)[1:nMonth]
+tYear  <- startYear:endYear
