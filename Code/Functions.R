@@ -101,8 +101,50 @@ seasonalField12 <- function(arr,tYear,FUN){
 }
 
 
+# Function to compare two series empirical tercile given a climatology
+compareExceedences <- function(s1,s2,t1,t2,terc1,terc2){
+	overlapPeriod <- intersect(t1,t2)
+	
+	overlapTable  <- matrix(0,3,3)
+	rownames(overlapTable) <- c('L1','M1','H1')
+	colnames(overlapTable) <- c('L2','M2','H2')
+
+	for(i in 1:length(overlapPeriod)){
+		result1 <- whichTercile(s1[t1==overlapPeriod[i]],terc1)
+		result2 <- whichTercile(s2[t2==overlapPeriod[i]],terc2)
+
+		overlapTable[result1,result2] <- overlapTable[result1,result2] + 1
+	}
+
+	return(overlapTable)
+}
+
+whichTercile <- function(val,terc){
+	if(val<terc[1]){
+		return(1)
+	} else if(val < terc[2]){
+		return(2)
+	} else{
+		return(3)
+	}
+}
+
+
+
 redBlue <- function(n=256){
 	require(fields)
 	require(RColorBrewer)
 	rev(designer.colors(n, brewer.pal(11,'RdBu')))
 }
+
+symPlot <- function(x,y,z,zmax=NULL,pal=redBlue(),...){
+	if(is.null(zmax)){
+		zmax <- max(abs(z),na.rm=T)
+		zr   <- c(-zmax,zmax)
+	}
+
+	image.plot(x,y,z,zlim=zr,col=pal,...)
+	world(add=T)
+}
+
+

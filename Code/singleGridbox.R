@@ -111,11 +111,14 @@ for(i in 1:length(slideSize)){
 	}
 
 
-	plot(tYearFinal[1:maxInd]+slideSize[i]/2,slidingSd,type='l',xlim=range(tYearFinal),ylim=c(0,max(slidingSd,na.rm=T)),
-				main=sprintf('NDJ %1.0f-year SD for (%.2f,%.2f)',slideSize[i],lon[xInd],lat[yInd]),
+	plot(tYearFinal[1:maxInd]+slideSize[i]/2,slidingSd,type='l',
+				xlim=range(tYearFinal),ylim=c(0,max(slidingSd,na.rm=T)),
+				main=sprintf('NDJ %1.0f-year SD for (%.2f,%.2f)',
+							slideSize[i],lon[xInd],lat[yInd]),
 				xlab='Midpoint Year', ylab='Standard Deviation (mm)')
 
-	points(tYearFinal[1:maxInd]+slideSize[i]/2,meanCount*(8),col='black',type='l',lty=2)
+	points(tYearFinal[1:maxInd]+slideSize[i]/2,meanCount*(8),
+		col='black',type='l',lty=2)
 	dev.off()
 }
 

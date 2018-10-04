@@ -130,12 +130,13 @@ chirpsTime <- as.numeric(labels(chirpsSeries))
 
 # build climatologies
 cruClimYears <- 1961:1990
-chirpsClimYears <- 1986: 2015
+chirpsClimYears <- 1982:2011
 
 cruClim    <- mean(cruSeries[which(cruTime %in% cruClimYears)],na.rm=T)
 chirpsClim <- mean(chirpsSeries[which(chirpsTime %in% chirpsClimYears)],na.rm=T)
 cruTerc    <- quantile(cruSeries[which(cruTime %in% cruClimYears)],probs=c(1/3,2/3))
-chirpsTerc <- quantile(chirpsSeries[which(chirpsTime %in% chirpsClimYears)],probs=c(1/3,2/3))
+chirpsTerc <- quantile(chirpsSeries[which(chirpsTime %in% chirpsClimYears)],
+	probs=c(1/3,2/3))
 
 
 xr <- range(cruTime,chirpsTime,na.rm=T)
@@ -150,8 +151,10 @@ points(cruTime,rep(cruTerc[1],length(cruTime)),type='l',col='black',lwd=1.5,lty=
 points(cruTime,rep(cruTerc[2],length(cruTime)),type='l',col='black',lwd=1.5,lty=3)
 points(chirpsTime,chirpsSeries,type='l',col='blue',lwd=2)
 points(chirpsTime,rep(chirpsClim,length(chirpsTime)),type='l',col='blue',lwd=1.5)
-points(chirpsTime,rep(chirpsTerc[1],length(chirpsTime)),type='l',col='blue',lwd=1.5,lty=3)
-points(chirpsTime,rep(chirpsTerc[2],length(chirpsTime)),type='l',col='blue',lwd=1.5,lty=3)
+points(chirpsTime,rep(chirpsTerc[1],length(chirpsTime)),
+	type='l',col='blue',lwd=1.5,lty=3)
+points(chirpsTime,rep(chirpsTerc[2],length(chirpsTime)),
+	type='l',col='blue',lwd=1.5,lty=3)
 
 par(new=TRUE)
 plot(cruTime,countsSeasonal[,sInd],col='red',type='l',
@@ -163,11 +166,14 @@ dev.off()
 # normalize the series individually and see how they line up
 # using a gaussian standardization which is probably not good (should be gamma probably)
 
-cruSd <- sd(cruSeries[which(cruTime %in% cruClimYears)],na.rm=T)
+cruSd    <- sd(cruSeries[which(cruTime %in% cruClimYears)],na.rm=T)
 chirpsSD <- sd(chirpsSeries[which(chirpsTime %in% chirpsClimYears)],na.rm=T)
 
 cruNormal    <- (cruSeries- cruClim)/cruSd
 chirpsNormal <- (chirpsSeries - chirpsClim)/chirpsSD
+
+cruTercNormal    <- (cruTerc - cruClim)/cruSd
+chirpsTercNormal <- (chirpsTerc - chirpsClim)/chirpsSD
 
 xr <- range(cruTime,chirpsTime)
 ymax <- max(abs(cruNormal),abs(chirpsNormal),na.rm=T)
@@ -177,6 +183,16 @@ pdf(sprintf('%s/standarized_%s.pdf',plotdir,plotDes),10,7)
 plot(cruTime,cruNormal,type='l',xlim=xr,ylim=yr,main=title,lwd=2,
 	xlab='Year', ylab='Normalized Precipitation (sigma/season)')
 points(chirpsTime,chirpsNormal,type='l',col='blue',lwd=2)
+
+
+points(cruTime,rep(cruTercNormal[1],length(cruTime)),
+	type='l',col='black',lwd=1.5,lty=3)
+points(cruTime,rep(cruTercNormal[2],length(cruTime)),
+	type='l',col='black',lwd=1.5,lty=3)
+points(chirpsTime,rep(chirpsTercNormal[1],length(chirpsTime)),
+	type='l',col='blue',lwd=1.5,lty=3)
+points(chirpsTime,rep(chirpsTercNormal[2],length(chirpsTime)),
+	type='l',col='blue',lwd=1.5,lty=3)
 abline(h=0)
 
 countsNormal <- (countsSeasonal[,sInd])/sd(countsSeasonal[,sInd])
@@ -185,5 +201,51 @@ legend('topleft', c('CRU TS4.01', 'CHIRPS'), lwd=2, col=c('black', 'blue'))
 dev.off()
 
 ###############################################################################
-# Start exploring methods to identify Wet/Dry years
+# Explore error in tercile assessment
 ###############################################################################
+
+
+compareExceedences <- function(s1,s2,t1,t2,terc1,terc2){
+	overlapPeriod <- intersect(t1,t2)
+	
+	overlapTable  <- matrix(0,3,3)
+	rownames(overlapTable) <- c('L1','M1','H1')
+	colnames(overlapTable) <- c('L2','M2','H2')
+
+	for(i in 1:length(overlapPeriod)){
+		result1 <- whichTercile(s1[t1==overlapPeriod[i]],terc1)
+		result2 <- whichTercile(s2[t2==overlapPeriod[i]],terc2)
+
+		overlapTable[result1,result2] <- overlapTable[result1,result2] + 1
+	}
+
+	return(overlapTable)
+}
+
+compareExceedences(cruSeries,chirpsSeries,)
+
+overlapPeriod <- intersect(cruTime,chirpsTime)
+overlapTable  <- matrix(0,3,3)
+
+rownames(overlapTable) <- c('L1','M1','H1')
+colnames(overlapTable) <- c('L2','M2','H2')
+
+for(i in 1:length(overlapPeriod)){
+	cruResult <- whichTercile(cruSeries[cruTime==overlapPeriod[i]],cruTerc)
+	chirpsResult <- whichTercile(chirpsSeries[chirpsTime==overlapPeriod[i]],chirpsTerc)
+
+	overlapTable[cruResult,chirpsResult] <- overlapTable[cruResult,chirpsResult] + 1
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

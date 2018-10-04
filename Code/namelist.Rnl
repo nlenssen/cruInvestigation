@@ -4,6 +4,7 @@
 library(fields)
 library(ncdf4)
 library(RColorBrewer)
+library(fitdistrplus)
 
 # user functions
 source('Code/Functions.R')
@@ -12,8 +13,8 @@ source('Code/Functions.R')
 # primary parameters (CHECK ALL OF THEM EACH RUN!)
 ##################################################
 
-ddir <- '/Users/lenssen/Documents/ensoData'
-wddir <- '/Users/lenssen/Documents/cruInvestigationData'
+ddir <- '/Users/lenssen/Dropbox/Data/ensoData'
+wddir <- '/Users/lenssen/Dropbox/Data/cruInvestigationData'
 
 plotdir <- '/Users/lenssen/Dropbox/DEES/LisaWork/Meetings/CommitteeMeeting'
 

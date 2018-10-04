@@ -32,12 +32,12 @@ pal <- designer.colors(256,brewer.pal(9,"OrRd"))
 pdf(sprintf('%s/yearCutoff.pdf',plotdir),10,7)
 image.plot(lon,lat2,cutoffDate[,latInds],col=pal,
 	xlab='',ylab='',main='CRU TS 4.01 Precipitation Data Poor Year (1980 contour)')
-contour(lon,lat2,cutoffDate[,latInds],levels=1980,add=T,col='blue')
+contour(lon,lat2,cutoffDate[,latInds],levels=c(1990,1980),add=T,col=c('green','blue'))
 world(add=T,col='grey40')
 dev.off()
 
 # make the mask to ignore pre-1960 for now
-dataPoorMask <- ifelse(cutoffDate < 1980,NA,1)
+dataPoorMask <- ifelse(cutoffDate < 1965,NA,1)
 
 # save relevant files for further work
 save(cutoffField,cutoffDate,dataPoorMask,
