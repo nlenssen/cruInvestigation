@@ -48,19 +48,7 @@ npTercileAnom <- aperm(apply(multAnom,c(1,2),quantile,
 # TODO: Visualize!!!
 #######
 
-## Get the MLE gamma dist for each gridbox
-gammaFit <- function(x){
-	if(any(is.na(x))){
-		return(NA)
-	} else{
-		fit <- try(fitdist(x, distr = "gamma", method = "mle"),silent=TRUE)
-		if(class(fit) =='try-error'){
-			return(NaN) 
-		} else{
-			return(fit)
-		}
-	}
-}
+
 
 testFit   <- array(NA, dim=c(nrow(subField),ncol(subField),2))
 testFitSD <- array(NA, dim=c(nrow(subField),ncol(subField),2))

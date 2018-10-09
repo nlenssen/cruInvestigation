@@ -32,6 +32,13 @@ endYear   <- 2016
 xInd <- 713
 yInd <- 176
 
+
+# top enso events
+M <- 11
+
+# alpha
+alpha <- 0.85
+
 ######################
 # secondary parameters
 ######################

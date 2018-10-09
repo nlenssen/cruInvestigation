@@ -106,8 +106,7 @@ compareExceedences <- function(s1,s2,t1,t2,terc1,terc2){
 	overlapPeriod <- intersect(t1,t2)
 	
 	overlapTable  <- matrix(0,3,3)
-	rownames(overlapTable) <- c('L1','M1','H1')
-	colnames(overlapTable) <- c('L2','M2','H2')
+	
 
 	for(i in 1:length(overlapPeriod)){
 		result1 <- whichTercile(s1[t1==overlapPeriod[i]],terc1)
@@ -115,6 +114,16 @@ compareExceedences <- function(s1,s2,t1,t2,terc1,terc2){
 
 		overlapTable[result1,result2] <- overlapTable[result1,result2] + 1
 	}
+
+	rows <- rowSums(overlapTable)
+	cols <- colSums(overlapTable)
+	tot  <- sum(overlapTable)
+
+	overlapTable <- rbind(overlapTable,cols)
+	overlapTable <- cbind(overlapTable,c(rows,tot))
+	
+	rownames(overlapTable) <- c('L1','M1','H1','')
+	colnames(overlapTable) <- c('L2','M2','H2','')
 
 	return(overlapTable)
 }
@@ -128,6 +137,35 @@ whichTercile <- function(val,terc){
 		return(3)
 	}
 }
+
+
+# Get the MLE gamma dist for each gridbox
+gammaFit <- function(x){
+	if(any(is.na(x))){
+		return(NA)
+	} else{
+		fit <- try(fitdist(x, distr = "gamma", method = "mle"),silent=TRUE)
+		if(class(fit) =='try-error'){
+			return(NaN) 
+		} else{
+			return(fit)
+		}
+	}
+}
+
+normalFit <- function(x){
+	if(any(is.na(x))){
+		return(NA)
+	} else{
+		fit <- try(fitdist(x, distr = "norm", method = "mle"),silent=TRUE)
+		if(class(fit) =='try-error'){
+			return(NaN) 
+		} else{
+			return(fit)
+		}
+	}
+}
+
 
 
 
@@ -147,4 +185,13 @@ symPlot <- function(x,y,z,zmax=NULL,pal=redBlue(),...){
 	world(add=T)
 }
 
+
+compareDistPlot <- function(gammaFit,normalFit){
+	par(mfrow=c(2,2))
+	cdfcomp(list(gammaFit,normalFit),legendtext=c('gamma', 'normal'))
+	denscomp(list(gammaFit,normalFit),legendtext=c('gamma', 'normal'))
+	qqcomp(list(gammaFit,normalFit),legendtext=c('gamma', 'normal'))
+	ppcomp(list(gammaFit,normalFit),legendtext=c('gamma', 'normal'))
+	gofstat(list(gammaFit,normalFit))
+}
 

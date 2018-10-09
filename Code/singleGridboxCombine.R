@@ -132,10 +132,13 @@ chirpsTime <- as.numeric(labels(chirpsSeries))
 cruClimYears <- 1961:1990
 chirpsClimYears <- 1982:2011
 
-cruClim    <- mean(cruSeries[which(cruTime %in% cruClimYears)],na.rm=T)
-chirpsClim <- mean(chirpsSeries[which(chirpsTime %in% chirpsClimYears)],na.rm=T)
-cruTerc    <- quantile(cruSeries[which(cruTime %in% cruClimYears)],probs=c(1/3,2/3))
-chirpsTerc <- quantile(chirpsSeries[which(chirpsTime %in% chirpsClimYears)],
+cruClimInds    <- which(cruTime %in% cruClimYears)
+chirpsClimInds <- which(chirpsTime %in% chirpsClimYears)
+
+cruClim    <- mean(cruSeries[cruClimInds],na.rm=T)
+chirpsClim <- mean(chirpsSeries[chirpsClimInds],na.rm=T)
+cruTerc    <- quantile(cruSeries[cruClimInds],probs=c(1/3,2/3))
+chirpsTerc <- quantile(chirpsSeries[chirpsClimInds],
 	probs=c(1/3,2/3))
 
 
@@ -200,52 +203,69 @@ points(cruTime,countsNormal,col='red',type='l',lty=2)
 legend('topleft', c('CRU TS4.01', 'CHIRPS'), lwd=2, col=c('black', 'blue'))
 dev.off()
 
+
+
+
+###############################################################################
+# Estimate the underlying Gamma? distributions of the two series
+###############################################################################
+
+# get the full fit object for each
+gammaCru    <- gammaFit(cruSeries[cruClimInds])
+gaussCru    <- normalFit(cruSeries[cruClimInds])
+
+gammaQuantCru <- quantile(gammaCru,probs=c(1/3,2/3))
+gaussQuantCru <- quantile(gaussCru,probs=c(1/3,2/3))
+
+cruQuantiles <- rbind(cruTerc,
+					quantile(gammaCru,probs=c(1/3,2/3))$quantiles,
+					quantile(gaussCru,probs=c(1/3,2/3))$quantiles)
+
+gammaChirps <- gammaFit(chirpsSeries[chirpsClimInds])
+gaussChirps <- normalFit(chirpsSeries[chirpsClimInds])
+
+chirpsQuantiles <- rbind(chirpsTerc,
+					quantile(gammaChirps,probs=c(1/3,2/3))$quantiles,
+					quantile(gaussChirps,probs=c(1/3,2/3))$quantiles)
+
+colnames(cruQuantiles) <- colnames(chirpsQuantiles) <- c('1/3','2/3')
+rownames(cruQuantiles) <- rownames(chirpsQuantiles) <- c('empirical','gamma','normal')
+
+# do a quick visual check of the two fits using the builtin plotting functions
+# included in firdistrplus
+compareDistPlot(gammaCru,gaussCru)
+
+compareDistPlot(gammaChirps,gaussChirps)
+
+
+# look at an annotated qq plot where I include the various 
+qqcomp(list(gammaCru,gaussCru),legendtext=c('gamma', 'normal'))
+abline(v=cruQuantiles[1,])
+abline(v=cruQuantiles[2,],col='red')
+abline(v=cruQuantiles[3,],col='green',lty=2)
+
+qqcomp(list(gammaChirps,gaussChirps),legendtext=c('gamma', 'normal'))
+abline(v=chirpsQuantiles[1,])
+abline(v=chirpsQuantiles[2,],col='red')
+abline(v=chirpsQuantiles[3,],col='green',lty=2)
+
 ###############################################################################
 # Explore error in tercile assessment
 ###############################################################################
 
+# compute the empirical exceedences using the climatologies
+empiricalExceed <- compareExceedences(cruSeries, chirpsSeries,
+					cruTime, chirpsTime,
+					cruTerc, chirpsTerc)
 
-compareExceedences <- function(s1,s2,t1,t2,terc1,terc2){
-	overlapPeriod <- intersect(t1,t2)
-	
-	overlapTable  <- matrix(0,3,3)
-	rownames(overlapTable) <- c('L1','M1','H1')
-	colnames(overlapTable) <- c('L2','M2','H2')
+gammaExceed     <- compareExceedences(cruSeries, chirpsSeries,
+					cruTime, chirpsTime,
+					cruQuantiles[2,], chirpsQuantiles[2,])
 
-	for(i in 1:length(overlapPeriod)){
-		result1 <- whichTercile(s1[t1==overlapPeriod[i]],terc1)
-		result2 <- whichTercile(s2[t2==overlapPeriod[i]],terc2)
+gaussExceed     <- compareExceedences(cruSeries, chirpsSeries,
+					cruTime, chirpsTime,
+					cruQuantiles[3,], chirpsQuantiles[3,])
 
-		overlapTable[result1,result2] <- overlapTable[result1,result2] + 1
-	}
-
-	return(overlapTable)
-}
-
-compareExceedences(cruSeries,chirpsSeries,)
-
-overlapPeriod <- intersect(cruTime,chirpsTime)
-overlapTable  <- matrix(0,3,3)
-
-rownames(overlapTable) <- c('L1','M1','H1')
-colnames(overlapTable) <- c('L2','M2','H2')
-
-for(i in 1:length(overlapPeriod)){
-	cruResult <- whichTercile(cruSeries[cruTime==overlapPeriod[i]],cruTerc)
-	chirpsResult <- whichTercile(chirpsSeries[chirpsTime==overlapPeriod[i]],chirpsTerc)
-
-	overlapTable[cruResult,chirpsResult] <- overlapTable[cruResult,chirpsResult] + 1
-}
-
-
-
-
-
-
-
-
-
-
-
+# Not great news, not really sure how to interpret right now
 
 
